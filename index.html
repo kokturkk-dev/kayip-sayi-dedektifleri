@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kayıp Sayı Dedektifleri</title>
+<style>
+:root{--bg:#fbf6e9;--card:#fff;--tx:#2b2b2b;--mu:#6b6b6b;--ac:#b5651d;--ok:#2e7d32;--bd:#d9cfb8;--q:#fff3c4;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1a14;--card:#2a261d;--tx:#f1ead8;--mu:#b5ab94;--ac:#e0a050;--ok:#7bc67e;--bd:#4a4332;--q:#4a3f1c}}
+:root[data-theme="dark"]{--bg:#1d1a14;--card:#2a261d;--tx:#f1ead8;--mu:#b5ab94;--ac:#e0a050;--ok:#7bc67e;--bd:#4a4332;--q:#4a3f1c}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:18px/1.5 Calibri,Segoe UI,Arial,sans-serif;padding:12px}
+main{max-width:760px;margin:0 auto}
+h1{font-size:1.6rem;margin:.3em 0}h2{font-size:1.3rem;margin:.2em 0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:12px 0}
+button{font:inherit;border:0;border-radius:10px;padding:12px 18px;background:var(--ac);color:#fff;cursor:pointer;min-height:48px}
+button.s{background:transparent;color:var(--ac);border:2px solid var(--ac)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.grid button{text-align:left}.done{background:var(--ok)}
+.slots{display:flex;gap:8px;justify-content:center;margin:8px 0}
+.slots b{width:44px;height:52px;border:2px solid var(--bd);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--card)}
+.qs{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.v{display:inline-block;text-align:right;margin:4px 0 4px 8px;font-size:1.2rem;min-width:150px}
+.v .b{border-bottom:2px solid var(--tx);display:flex;justify-content:space-between;gap:20px}
+.q{display:inline-block;min-width:1.5em;background:var(--q);border:2px dashed var(--ac);border-radius:5px;text-align:center}
+.d{display:inline-grid;grid-template-columns:auto auto;margin:4px 0 4px 8px;font-size:1.2rem}
+.d>div{padding:3px 12px}.d .a{border-right:2px solid var(--tx)}.d .c{border-bottom:2px solid var(--tx)}
+label{display:block;margin:8px 0 2px;font-weight:700}
+input{font:inherit;width:100%;padding:10px;border:2px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx)}
+.msg{margin:10px 0;font-weight:700}.big{font-size:3rem;text-align:center;color:var(--ok);font-weight:700}
+.mu{color:var(--mu)}
+body{background:linear-gradient(180deg,rgba(181,101,29,.2),transparent 240px),var(--bg)}.card{box-shadow:0 3px 10px rgba(0,0,0,.08)}.hero{text-align:center}.hero svg{width:100%;max-width:340px;height:auto}.gem{font-size:4.5rem;text-align:center;animation:bn 1s infinite alternate}@keyframes bn{to{transform:translateY(-14px) scale(1.1)}}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}.msg.sh{animation:sh .4s}.tile{background:var(--c);display:flex;flex-direction:column;align-items:center;text-align:center!important;gap:2px;padding:16px 10px}.tile .em{font-size:2.6rem;line-height:1}.tile.done{background:var(--ok)}.pg{height:12px;border-radius:8px;background:var(--bd);overflow:hidden;margin:8px 0 14px}.pg i{display:block;height:100%;background:var(--ok);transition:width .5s}@media(prefers-reduced-motion:reduce){.gem,.msg.sh{animation:none}}#mt{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);right:10px;z-index:5;min-height:44px;padding:8px 12px;background:var(--card);border:2px solid var(--bd);color:var(--tx)}.bub{display:flex;gap:10px;align-items:flex-start;margin:10px 0}.av{font-size:2.4rem;line-height:1}.bub p{margin:0;background:var(--q);border:2px solid var(--bd);border-radius:14px;padding:8px 12px}.note{background:var(--q);border:2px dashed var(--ac);border-radius:6px;padding:8px 12px;margin:10px 0;transform:rotate(-.6deg)}</style></head><body><button id="mt" aria-label="Ses aç/kapat">🔊</button><main id="app"></main>
+<script>
+const Q='<span class="q">?</span>';
+const op=(s,t,b,r)=>`<div class="v"><div>${t}</div><div class="b"><span>${s}</span><span>${b}</span></div><div>${r}</div></div>`;
+const dv=(a,b,q,k)=>`<div class="d"><div class="a">${a}</div><div class="c">${b}</div><div class="a">${k?'Kalan: '+k:'&nbsp;'}</div><div>${q}</div></div>`;
+const L=t=>`<div style="margin:6px 0 6px 8px;font-size:1.2rem">${t}</div>`;
+const S=[
+{t:'Toplama Tüneli',e:'🚇',s:'Hırsız tünelden kaçarken toplama işlemlerindeki bazı sayıları silmiş. Silinen sayıları bul.',
+ q:[['A) Verilmeyeni bulunuz.',op('+','3 456',Q,'8 120')],['B) Verilmeyeni bulunuz.',op('+',Q,'2 875','6 003')],['C) Verilmeyeni bulunuz.',op('+','25 384',Q,'48 120')]],
+ a:['4664','3128','22736'],d:3,h:'Toplam, toplananların birleşimidir. Verilmeyeni bulmak için toplamdan bilinen toplananı çıkar.'},
+{t:'Çıkarma Köprüsü',e:'🌉',s:'Köprüdeki çıkarma işlemlerinin eksilen ya da çıkan sayıları düşmüş. Eksik sayıları bul.',
+ q:[['A) Çıkanı bulunuz.',op('−','9 000',Q,'4 365')],['B) Eksileni bulunuz.',op('−',Q,'2 748','3 915')],['C) Çıkanı bulunuz.',op('−','5 000 000',Q,'3 482 650')]],
+ a:['4635','6663','1517350'],d:7,h:'Eksilen = çıkan + fark. Çıkanı bulmak için eksilenden farkı çıkar. Eksileni bulmak için çıkan ile farkı topla.'},
+{t:'Çarpma Labirenti',e:'🧱',s:'Labirentin duvarlarındaki çarpma işlemlerinde çarpanlardan biri kaybolmuş. Kayıp çarpanı bul.',
+ q:[['A) Verilmeyen çarpanı bulunuz.',op('×',Q,'24','1 128')],['B) Verilmeyen çarpanı bulunuz.',op('×',Q,'35','2 485')],['C) Verilmeyen çarpanı bulunuz.',op('×',Q,'46','3 358')]],
+ a:['47','71','73'],d:1,h:'Çarpımı bilinen çarpana böl. Bulduğun sayıyı çarpmada yerine koyup kontrol et.'},
+{t:'Bölme Kapısı',e:'🚪',s:'Kapının üç kilidi var ve her biri bir bölme işlemi. Eksik sayıları bul.',
+ q:[['A) Böleni bulunuz.',dv('756',Q,'18')],['B) Bölüneni bulunuz.',dv(Q,'15','32')],['C) Bölüneni bulunuz.',dv(Q,'25','48','13')]],
+ a:['42','480','1213'],d:8,h:'Bölünen = bölen × bölüm + kalan. Böleni bulmak için bölünen sayıyı bölüme böl.'},
+{t:'Sıfır Sandığı',e:'🧰',s:'Sandık 10, 100 ve 1 000 ile işlem yapılarak açılır. Boş yerlere uygun sayıyı yaz.',
+ q:[['A) Uygun sayıyı yazınız.',L('53 × '+Q+' = 5 300')],['B) Uygun sayıyı yazınız.',L(Q+' ÷ 100 = 47')],['C) Uygun sayıyı yazınız.',L('2 560 000 ÷ '+Q+' = 256')]],
+ a:['100','4700','10000'],d:5,h:'10 ile çarparken sona 1, 100 ile 2, 1 000 ile 3 sıfır eklenir. Bölerken aynı sayıda sıfır silinir.'}];
+const plan=()=>{const all=st.ok.every(x=>x),sta=all||matchMedia('(prefers-reduced-motion:reduce)').matches,R=[[20,20],[130,20],[240,20],[20,150],[130,150]];const rooms=R.map((p,i)=>`<g data-i="${i}" style="cursor:pointer"><rect x="${p[0]}" y="${p[1]}" width="100" height="70" rx="8" fill="${st.ok[i]?'#2e7d32':COL[i]}" fill-opacity="${st.ok[i]?.9:.3}" stroke="${COL[i]}" stroke-width="3"/><text x="${p[0]+50}" y="${p[1]+28}" text-anchor="middle" font-size="24">${S[i].e}</text><text text-anchor="middle" font-size="11" font-weight="700" fill="currentColor"><tspan x="${p[0]+50}" y="${p[1]+46}">${i+1}. ${S[i].t.split(' ')[0]}</tspan><tspan x="${p[0]+50}" y="${p[1]+60}">${S[i].t.split(' ').slice(1).join(' ')}${st.ok[i]?' ✓':''}</tspan></text></g>`).join('');const th=sta?`<text x="${all?290:60}" y="127" text-anchor="middle" font-size="24">🦹</text>`:`<g><animateMotion dur="9s" repeatCount="indefinite" path="M30,120 L330,120 L30,120"/><text y="8" text-anchor="middle" font-size="24">🦹</text></g>`;return `<svg viewBox="0 0 360 240" style="width:100%;max-width:560px;display:block;margin:6px auto" role="img" aria-label="Müze krokisi"><rect x="5" y="5" width="350" height="230" rx="12" fill="none" stroke="currentColor" stroke-width="3"/><line x1="30" y1="120" x2="330" y2="120" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="6 6" stroke-width="2"/>${rooms}<g data-k="1" style="cursor:pointer"><rect x="240" y="150" width="100" height="70" rx="8" fill="${all?'#c79100':'#888'}" fill-opacity=".5" stroke="${all?'#c79100':'#888'}" stroke-width="3"/><text x="290" y="186" text-anchor="middle" font-size="26">${all?'💎':'🔐'}</text><text x="290" y="210" text-anchor="middle" font-size="12" fill="currentColor">Kasa</text></g>${th}<text x="180" y="108" text-anchor="middle" font-size="11" fill="currentColor" fill-opacity=".7">koridor</text></svg><p class="mu" style="text-align:center">${all?'🦹 Hırsız kasanın önünde bekliyor!':'🦹 Hırsız koridorda dolanıyor, onu görebiliyor musun?'}</p>`};
+const BZ='Yöntem doğru ama basamak bozmada hata var, işlemi yeniden yap.',EL='Eldeyi (taşıma) unutmuş olabilirsin, toplamayı yeniden yap.',CK='Bölme ya da çarpma hatası var. Bulduğun sayıyı işlemde yerine koyup kontrol et.',T1='Verilmeyen toplananı bulmak için toplamdan bilinen toplananı çıkarmalısın; sen topladın.',M1='Kayıp çarpanı bulmak için çarpımı bilinen çarpana bölmelisin; sen topladın.',CX='Çıkanı bulmak için eksilenden farkı çıkarmalısın; sen topladın.';
+const e=(h,w)=>({h,w});
+const ER=[[e('Toplamdan (8 120) bilinen toplananı (3 456) çıkar.',{11576:T1,4764:BZ,5764:BZ}),e('Toplamdan (6 003) bilinen toplananı (2 875) çıkar.',{8878:T1,3228:BZ,4128:BZ}),e('Toplamdan (48 120) bilinen toplananı (25 384) çıkar.',{73504:T1,22836:BZ,23736:BZ})],
+[e('Çıkan = eksilen − fark: 9 000 − 4 365.',{13365:CX,5635:BZ}),e('Eksilen = çıkan + fark: 2 748 + 3 915.',{1167:'Eksileni bulmak için çıkan ile farkı toplamalısın; sen çıkardın.',6563:EL}),e('Çıkan = eksilen − fark: 5 000 000 − 3 482 650.',{8482650:CX,1527350:BZ})],
+[e('Çarpımı (1 128) bilinen çarpana (24) böl.',{1152:M1,57:CK}),e('Çarpımı (2 485) bilinen çarpana (35) böl.',{2520:M1,81:CK}),e('Çarpımı (3 358) bilinen çarpana (46) böl.',{3404:M1,63:CK,83:CK})],
+[e('Bölen = bölünen ÷ bölüm: 756 ÷ 18.',{774:'Böleni bulmak için bölünen sayıyı bölüme bölmelisin; sen topladın.',38:CK}),e('Bölünen = bölen × bölüm: 15 × 32.',{47:'Bölüneni bulmak için bölen ile bölümü çarpmalısın; sen topladın.',495:CK,450:CK}),e('Bölünen = bölen × bölüm + kalan: 25 × 48 + 13.',{1200:'Kalanı (13) eklemeyi unuttun.',1188:'Kalanı eklemelisin, sen çıkardın.',1225:'Kalanı değil böleni (25) eklemişsin.'})],
+[e('53’ün sonuna kaç sıfır eklenince 5 300 olur?',{10:'10 ile çarpınca sona 1 sıfır eklenir, ama 53’ten 5 300’e 2 sıfır eklenmiş.',1000:'1 000 ile çarpınca 3 sıfır eklenir, burada 2 sıfır eklenmiş.'}),e('Hangi sayıdan 2 sıfır silince 47 kalır?',{470:'100 ile bölünce 2 sıfır silinir. Senin sayında yalnız 1 sıfır var.',47000:'Senin sayında 3 sıfır var, 2 sıfır olmalı.'}),e('2 560 000’dan kaç sıfır silinirse 256 kalır?',{1000:'3 sıfır silinince 2 560 kalır; 256 için 4 sıfır silinmeli.',100:'2 sıfır silinince 25 600 kalır; 4 sıfır silinmeli.',100000:'Bu bölen çok büyük; 4 sıfır silinmeli.'})]];
+const HN=['Hahaha! Toplama tünelinde izlerimi sildim. Bakalım bulabilecek misiniz?','Köprüden geçerken eksilen ve çıkan sayıları suya attım!','Labirentin duvarlarında çarpanlarımı sakladım. Kaybolmayın!','Kapının kilitlerini bölerek kapattım. Anahtar bölen sayılarda!','Sandığın kilidi sıfırlarla dolu. Sıfır atmayı bilen açar.'];const CODE='37185';const COL=['#43a047','#1e88e5','#fb8c00','#8e24aa','#c79100'];
+let st={ok:[0,0,0,0,0],team:''};
+try{const x=JSON.parse(localStorage.getItem('ksd')||'null');if(x&&x.ok)st=x}catch(e){}
+const save=()=>{try{localStorage.setItem('ksd',JSON.stringify(st))}catch(e){}};
+const app=document.getElementById('app');
+const norm=v=>v.replace(/[\s.,]/g,'');
+let AC=null,MUTE=false;
+const snd=k=>{if(MUTE)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const N={tk:[[520,.06]],ok:[[523,.1],[659,.1],[784,.18]],no:[[220,.15],[165,.25]],hn:[[660,.08],[880,.12]],win:[[523,.12],[659,.12],[784,.12],[1047,.4]]}[k];let t=AC.currentTime;N.forEach(([f,d])=>{const o=AC.createOscillator(),g=AC.createGain();o.type=k==='no'?'sawtooth':'triangle';o.frequency.value=f;g.gain.setValueAtTime(.15,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d);t+=d})}catch(e){}};
+const bub=(a,t)=>`<div class="bub"><span class="av">${a}</span><p>${t}</p></div>`;
+document.getElementById('mt').onclick=function(){MUTE=!MUTE;this.textContent=MUTE?'🔇':'🔊'};
+const slots=()=>`<div class="slots">${S.map((s,i)=>`<b>${st.ok[i]?s.d:'·'}</b>`).join('')}</div>`;
+function home(){
+ app.innerHTML=`<div class="card"><div class="hero"><svg viewBox="0 0 320 150" role="img" aria-label="Matematik Müzesi"><rect x="20" y="120" width="280" height="10" rx="3" fill="#b5651d"/><path d="M40 60 160 20 280 60Z" fill="#d9a85c"/><rect x="55" y="62" width="210" height="58" fill="#f3e3bf"/><g fill="#b5651d"><rect x="70" y="66" width="14" height="54"/><rect x="110" y="66" width="14" height="54"/><rect x="196" y="66" width="14" height="54"/><rect x="236" y="66" width="14" height="54"/></g><rect x="143" y="88" width="34" height="32" rx="3" fill="#6b4423"/><polygon points="160,32 170,44 160,56 150,44" fill="#4fc3f7" stroke="#0277bd" stroke-width="2"/><text x="160" y="146" text-anchor="middle" font-size="12" fill="currentColor">MATEMATİK MÜZESİ</text></svg></div><h1>🔍 Kayıp Sayı Dedektifleri</h1><p>Matematik Müzesi’nin en değerli parçası olan <b>Sıfır Elması</b> gece yarısı kayboldu! Hırsız elması kasaya koyup 5 haneli bir şifreyle kilitlemiş ve kaçarken işlem defterindeki bazı sayıları silmiş.</p><p>Görevin: müzenin beş bölümünü gez, silinen sayıları bul ve her bölümden bir şifre rakamı topla. Beş rakamı <b>istasyon sırasına göre</b> birleştirirsen kasa açılır.</p>${bub('🕵️','Ben Müfettiş Sayı! Hırsızın izlerini birlikte süreceğiz. Önce takımının adını yaz.')}<label for="tn">Takım adı</label><input id="tn" value="${st.team}" placeholder="Takımınızın adını yazın"><p><button id="go">Göreve başla</button></p></div>`;
+ document.getElementById('go').onclick=()=>{snd('tk');st.team=document.getElementById('tn').value;save();map()};
+}
+function map(){
+ const all=st.ok.every(x=>x);
+ app.innerHTML=`<div class="card"><h2>🗺️ Müze haritası</h2>${bub('🕵️',st.ok.every(x=>x)?'Beş rakam tamam! Şimdi kasaya git!':st.ok.some(x=>x)?'Güzel gidiyorsun! Kalan istasyonlara bak.':'Hırsız beş bölümde iz bıraktı. İstediğin yerden başla!')}<p class="mu">Takım: ${st.team||'—'}. Okulda bulunduğun istasyon noktasına gidip ilgili bölümü aç.</p>${plan()}${slots()}<div class="pg"><i style="width:${st.ok.filter(x=>x).length*20}%"></i></div><p><button id="ks" ${all?'':'class="s"'}>🔐 Kasa</button></p>${all?'':'<p class="mu">Kasa için beş rakamı da bulmalısın.</p>'}</div>`;
+ app.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{snd('tk');stn(+b.dataset.i)});
+ document.getElementById('ks').onclick=kasa;app.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>st.ok.every(x=>x)?kasa():snd('no'));
+}
+function stn(i){
+ const s=S[i];
+ app.innerHTML=`<div class="card" style="border-top:8px solid ${COL[i]}"><h2>${s.e} İstasyon ${i+1} – ${s.t}</h2><p>${s.s}</p><div class="note">🦹 <b>Hırsızın notu:</b> ${HN[i]}</div><div class="qs">${s.q.map(q=>`<div><b>${q[0]}</b>${q[1]}</div>`).join('')}</div></div>
+ <div class="card"><h2>Cevaplarını yaz</h2>${['A','B','C'].map((l,k)=>`<label for="a${k}">${l}) cevabı</label><input id="a${k}" inputmode="numeric" placeholder="boşluksuz yaz, örn. 4664">`).join('')}<p><button id="ck">Kontrol et</button> <button class="s" id="hn">💡 İpucu</button> <button class="s" id="bk">← Harita</button></p><div class="msg" id="ms"></div></div>`;
+ const ms=document.getElementById('ms');
+ document.getElementById('bk').onclick=map;
+ document.getElementById('hn').onclick=()=>{ms.textContent='🕵️ İpucu: '+s.h;snd('hn')};
+ document.getElementById('ck').onclick=()=>{
+  const n=s.a.filter((a,k)=>norm(document.getElementById('a'+k).value)===a).length;
+  if(n===3){st.ok[i]=1;save();snd('ok');ms.innerHTML=`🕵️ Harika iş! Tüm cevaplar doğru. Şifre rakamın:<div class="big">${s.d}</div><p class="mu">Rakamı not et, haritada da görünecek.</p>`}
+  else{ms.innerHTML=`🦹 Hı hı, bu kadar kolay değil! ${n} / 3 cevap doğru.`+s.a.map((a,k)=>{const v=norm(document.getElementById('a'+k).value),q=ER[i][k],el=document.getElementById('a'+k);el.style.borderColor=v===a?'var(--ok)':'#c62828';return v===a?'':bub('🕵️','<b>'+'ABC'[k]+') yanlış:</b> '+(v?(q.w[v]||'Bu cevap uymuyor.'):'Bu soruyu boş bıraktın.')+' <i>İpucu: '+q.h+'</i>')}).join('');ms.classList.remove('sh');void ms.offsetWidth;ms.classList.add('sh');snd('no')}
+ };
+}
+function kasa(){
+ app.innerHTML=`<div class="card"><h2>🔐 Kasa</h2>${slots()}<p>Beş rakamı istasyon sırasına göre (1’den 5’e) yaz.</p><input id="kd" inputmode="numeric" maxlength="5" placeholder="_ _ _ _ _"><p><button id="ka">Kasayı aç</button> <button class="s" id="bk">← Harita</button></p><div class="msg" id="ms"></div></div>`;
+ document.getElementById('bk').onclick=map;
+ document.getElementById('ka').onclick=()=>{
+  if(norm(document.getElementById('kd').value)===CODE)snd('win'),app.innerHTML=`<div class="card"><div class="gem">💎</div><h1>🎉 Tebrikler${st.team?', '+st.team:''}!</h1><p>Kasayı açtınız ve <b>Sıfır Elması</b>’nı buldunuz. Hırsızın işlem defteri artık sizde!</p>${bub('🦹','Yakalandım! Elması geri verdim... Bir dahaki sefere sizi atlatacağım!')}<p>Öğretmeninize haber verin.</p><p><button class="s" id="rs">Yeniden oyna</button></p></div>`,document.getElementById('rs').onclick=()=>{st={ok:[0,0,0,0,0],team:''};save();home()};
+  else snd('no'),document.getElementById('ms').textContent='🦹 Kasa açılmadı! Rakamlarının sırasını ve her istasyonun cevaplarını kontrol et.';
+ };
+}
+home();
+</script></body></html>
